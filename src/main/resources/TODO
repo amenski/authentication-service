@@ -1,0 +1,3 @@
+- EP to generate token
+- EP to validate token (triggered from gateway)
+- Include whitelist and blacklist?

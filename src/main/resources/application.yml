@@ -1,0 +1,41 @@
+app.version: '@project.version@'
+
+server:
+  shutdown: graceful
+  port: 8081
+  
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://localhost:8761/eureka
+    instance:
+      preferIpAddress: true
+     
+#==== spring related ======#
+spring:
+  profiles:
+    active: dev
+  application:
+    name: authentication-service
+   # The following 2 must be there to catch 404 (NoHandlerFoundException)
+  mvc:
+    throw-exception-if-no-handler-found: true
+  resources:
+    add-mappings: false
+  lifecycle:
+    timeout-per-shutdown-phase: "10s" # graceful shutdown, default is 30s
+    
+    #==== connect to mysql ======#
+  jpa:
+     hibernate:
+       ddl-auto: none
+       properties.hibernate.dialect: org.hibernate.dialect.MySQL8Dialect
+  datasource:
+    url: jdbc:mysql://localhost:3306/auth
+    username: root
+    password:
+
+#====== security ======#
+  security:
+    basic:
+      enabled: false

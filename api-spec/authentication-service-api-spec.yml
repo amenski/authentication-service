@@ -1,0 +1,286 @@
+swagger: '2.0'
+info:
+  version: 0.0.1
+  title:  authentication-service
+  description: ''
+host: 'localhost:8080'
+basePath: /v1
+securityDefinitions:
+  Bearer:
+    type: apiKey
+    name: Authorization
+    in: header
+schemes:
+  - http
+tags:
+  - name: Users
+    description: 'User related endpoints'
+  - name: Account
+    description: 'User related endpoints'
+paths:
+    '/v1/user/profile/create':
+      post:
+        operationId: createNewUser
+        summary: 'Create a new user'
+        tags:
+        - Users
+        consumes:
+        - application/json
+        parameters:
+          - name: userInfo
+            in: body
+            schema:
+              $ref: '#/definitions/request-save-user'
+        responses:
+          '200':
+            description: ''
+            schema:
+              $ref: '#/definitions/response-base'
+          '401':
+            $ref: '#/responses/response-unauthorized'
+          '500':
+            $ref: '#/responses/response-internal-server-error-500'
+    '/v1/user/profile/{user-id}/avatar':
+      put:
+        operationId: updateProfileImage
+        summary: 'Update profile image'
+        tags:
+        - Users
+        security:
+        - Bearer: []
+        consumes:
+        - multipart/form-data
+        parameters:
+          - $ref: '#/parameters/parameter-user-id'
+          - name: profileImage
+            in: formData
+            type: file
+            required: true
+        responses:
+          '200':
+            description: ''
+            schema:
+              $ref: '#/definitions/response-base'
+          '401':
+            $ref: '#/responses/response-unauthorized'
+          '500':
+            $ref: '#/responses/response-internal-server-error-500'
+    '/v1/user/profile/{user-id}':
+      get:
+        operationId: getUserById
+        summary: 'Get user by Id'
+        tags:
+        - Users
+        security:
+        - Bearer: []
+        produces:
+        - application/json
+        parameters:
+        - $ref: '#/parameters/parameter-user-id'
+        responses:
+          '200':
+            description: ''
+            schema:
+              $ref: '#/definitions/response-user-single'
+          '401':
+            $ref: '#/responses/response-unauthorized'
+          '500':
+            $ref: '#/responses/response-internal-server-error-500'
+    '/v1/user/profile/{user-id}/delete':
+      delete:
+        operationId: deleteUser
+        summary: 'Delete user'
+        tags:
+        - Users
+        security:
+        - Bearer: []
+        produces:
+        - application/json
+        parameters:
+        - $ref: '#/parameters/parameter-user-id'
+        responses:
+          '200':
+            description: ''
+            schema:
+              $ref: '#/definitions/response-base'
+          '500':
+            $ref: '#/responses/response-internal-server-error-500'
+    '/v1/auth':
+      post:
+        operationId: authenticate
+        summary: 'User authentication'
+        tags:
+        - Account  
+        produces:
+        - application/json
+        parameters:
+          - in: body
+            name: body
+            schema:
+              $ref: '#/definitions/model-login'
+        responses:
+          '200':
+            description: ''
+            schema:
+              $ref: '#/definitions/response-base'
+          '500':
+            $ref: '#/responses/response-internal-server-error-500'
+    '/v1/validateToken':
+      get:
+        operationId: validateToken
+        summary: 'Validate authentication token'
+        tags:
+        - Account  
+        produces:
+        - application/json
+        responses:
+          '200':
+            description: ''
+            schema:
+              $ref: '#/definitions/response-base'
+          '401':
+            $ref: '#/responses/response-unauthorized'
+          '500':
+            $ref: '#/responses/response-internal-server-error-500' 
+parameters:
+    parameter-user-id:
+      name: user-id
+      in: path
+      type: integer
+      format: int32
+      description: Is an account Id of the respective user
+      required: true
+    parameter-user-name:
+      name: user-name
+      in: path
+      type: string
+      required: true
+definitions:
+    response-base:
+      type: object
+      properties:
+        success:
+          type: boolean
+        resultCode:
+          type: integer
+          format: int32
+        internalCode:
+          type: integer
+          format: int32
+        message:
+          type: string
+        errors:
+          type: array
+          items:
+            type: string
+        transactionId:
+          type: string
+        type:
+          type: string
+      discriminator: type
+      required:
+        - success
+        - resultCode
+    model-login:
+      type: object
+      properties:
+        username:
+          type: string
+        password:
+          type: string
+    model-address:
+      type: object
+      properties:
+        city:
+          type: string
+        state:
+          type: string
+        country:
+          type: string
+    model-user:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int32
+        firstName:
+          type: string
+        lastName:
+          type: string
+        dob:
+          type: string
+          format: date
+        gender:
+          type: string
+          enum: [M,F]
+        phone:
+          type: string
+        createdDate:
+          type: string
+          format: date-time
+        modifiedDate:
+          type: string
+          format: date-time
+        modifiedBy:
+          type: string
+        address:
+          $ref: '#/definitions/model-address'
+        account:
+          $ref: '#/definitions/model-account'
+    model-account:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int32
+        email:
+          type: string
+        password:
+          type: string
+        avatar:
+          type: string
+        accountType:
+          type: string
+        enabled:
+          type: boolean
+        registrationDate:
+          type: string
+          format: date-time
+        lastAccess:
+          type: string
+          format: date-time
+    request-save-user:
+      type: object
+      properties:
+        schema:
+          $ref: '#/definitions/model-user'
+    response-user-single:
+      allOf:
+        - $ref: '#/definitions/response-base'
+        - type: object
+          properties:
+            returnValue:
+              $ref: '#/definitions/model-user'
+          required:
+            - returnValue
+    response-account:
+      allOf:
+        - $ref: '#/definitions/response-base'
+        - type: object
+          properties:
+            returnValue:
+              $ref: '#/definitions/model-account'
+          required:
+            - returnValue
+responses:
+    response-internal-server-error-500:
+      description: Internal Server error
+      schema:
+        $ref: '#/definitions/response-base'
+    response-unauthorized:
+        description: Authentication information is missing or invalid
+        schema:
+          $ref: '#/definitions/response-base' 
+        headers:
+          WWW_Authenticate:
+            type: string
