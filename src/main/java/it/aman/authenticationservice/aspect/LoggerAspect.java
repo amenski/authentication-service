@@ -30,7 +30,7 @@ import lombok.extern.slf4j.Slf4j;
 @Aspect
 @Component
 @RequiredArgsConstructor
-public class EthLoggerAspect {
+public class LoggerAspect {
 
     private final Environment environment;
 
@@ -39,7 +39,7 @@ public class EthLoggerAspect {
     @Around("@annotation(it.aman.authenticationservice.annotation.Loggable)")
     public Object logInterceptor(ProceedingJoinPoint jointPoint) throws Throwable {
         List<String> arguments = new ArrayList<>();
-        String declaringMethod = EthLoggerAspect.class.getSimpleName();
+        String declaringMethod = LoggerAspect.class.getSimpleName();
         Object proceed = null;
         try {
             MethodSignature methodSignature = (MethodSignature) jointPoint.getSignature();

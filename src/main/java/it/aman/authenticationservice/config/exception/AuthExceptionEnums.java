@@ -23,7 +23,7 @@ public enum AuthExceptionEnums implements Supplier<AuthException> {
 	ACCOUNT_NOT_FOUND(new AuthException(HttpStatus.NOT_FOUND , 404003, "Account does not exist or is not active.")),
 	ROLE_NOT_FOUND(new AuthException(HttpStatus.NOT_FOUND , 404004, "User role not found.")),
 	
-	UNAUTHORIZED_EXCEPTION(new AuthException(HttpStatus.UNAUTHORIZED , 401001, "Unauthorized!!")),
+	UNAUTHORIZED_EXCEPTION(new AuthException(HttpStatus.UNAUTHORIZED , 401001, "You are Unauthorized to do this operation!!")),
 	USERNAME_OR_PASSWORD_INCORECT(new AuthException(HttpStatus.UNAUTHORIZED , 401002, "User-name or password incorrect!")),
 	AUTHENTICATION_DATA_REQUIRED(new AuthException(HttpStatus.UNAUTHORIZED , 401003, "Authentication data is requred, please try again!!")),
 	

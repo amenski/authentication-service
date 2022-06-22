@@ -41,7 +41,7 @@ public class JwtCustomRequestAuthenticationFilter extends OncePerRequestFilter {
         if (header != null && header.startsWith(AuthConstants.AUTH_TOKEN_PREFIX)) {
             authToken = header.replace(AuthConstants.AUTH_TOKEN_PREFIX, "");
             try {
-                username = jwtTokenUtil.extractUsername(authToken);
+                username = (String) jwtTokenUtil.extractClaim(authToken, "sub");
             } catch (IllegalArgumentException e) {
                 logger.error("An error occured during getting username from token", e);
             } catch (JwtException e) {

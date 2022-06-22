@@ -134,7 +134,15 @@ public class JwtTokenUtil {
     }
     
 	@Loggable
-    public String extractUsername(String authToken) {
-        return getAllClaims(authToken, APP_SECRET).getSubject();
+    public Object extractClaim(final String authToken, final String claim) {
+        switch (claim) {
+        case "sub":
+            return getAllClaims(authToken, APP_SECRET).getSubject();
+        case "permissions":
+            return getAllClaims(authToken, APP_SECRET).get("permissions", Object.class);
+        default:
+            logger.error("Unknown claim name. ");
+            return null;
+        }
     }
 }

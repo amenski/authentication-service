@@ -27,6 +27,7 @@ public class AuthConstants {
 
     public static final String X_REQUESTED_URL = "X-Requested-Url";
     public static final String TRANSACTION_ID_KEY = "X-Transaction-Id";
+    public static final String X_REQUESTED_URL_HTTP_METHOD = "X-Requested-Url-http-method";
 
     public static final String ANONYMOUS_USER = "anonymousUser";
 

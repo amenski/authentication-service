@@ -9,7 +9,7 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 @SpringBootApplication (scanBasePackages = {"it.aman.authenticationservice"})
 @EnableJpaRepositories
-//@EnableDiscoveryClient
+@EnableDiscoveryClient
 @EnableAspectJAutoProxy
 @EnableTransactionManagement
 public class AuthenticationServiceApplication {
