@@ -16,6 +16,7 @@ import it.aman.authenticationservice.util.AuthConstants;
 @Target(value = ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Loggable {
-	String format() default AuthConstants.PARAMETER_2;
-	String[] exclusions() default "";
+    String format() default AuthConstants.PARAMETER_2;
+
+    String[] exclusions() default "";
 }

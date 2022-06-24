@@ -15,15 +15,15 @@ import it.aman.authenticationservice.service.security.UserPrincipal;
 @Service
 @Scope(proxyMode = ScopedProxyMode.TARGET_CLASS)
 public class AbstractService {
-	
-	Logger logger = LoggerFactory.getLogger(this.getClass());
 
-	protected final String getCurrentLoggedInUsername() {
-		SecurityContext context = SecurityContextHolder.getContext();
-		if(Objects.nonNull(context.getAuthentication()) && Objects.nonNull(context.getAuthentication().getPrincipal())) {
-			UserPrincipal principal = UserPrincipal.of(context.getAuthentication().getPrincipal());
-			return principal.getUsername();
-		}
-		return null;
-	}
+    Logger logger = LoggerFactory.getLogger(this.getClass());
+
+    protected final String getCurrentLoggedInUsername() {
+        SecurityContext context = SecurityContextHolder.getContext();
+        if (Objects.nonNull(context.getAuthentication()) && Objects.nonNull(context.getAuthentication().getPrincipal())) {
+            UserPrincipal principal = UserPrincipal.of(context.getAuthentication().getPrincipal());
+            return principal.getUsername();
+        }
+        return null;
+    }
 }

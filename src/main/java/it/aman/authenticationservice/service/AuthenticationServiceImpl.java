@@ -74,7 +74,6 @@ public class AuthenticationServiceImpl {
         } 
     }
     
-    
     @Loggable
     @SuppressWarnings("unchecked")
     public boolean validateToken(HttpServletRequest httpServletRequest) throws Exception {
@@ -83,7 +82,21 @@ public class AuthenticationServiceImpl {
         final String requestedUrlHttpMethod = httpServletRequest.getHeader(AuthConstants.X_REQUESTED_URL_HTTP_METHOD);
         String username = null; 
         String authToken = null;
-        if (StringUtils.isNoneBlank(authHeader, requestedUrl, requestedUrlHttpMethod) && authHeader.startsWith(AuthConstants.AUTH_TOKEN_PREFIX)) {
+        
+        // for public api's we don't have to have them in the endpoint table
+        if(StringUtils.isBlank(authHeader)) {
+            List<AuthEndpoint> endpoints = endpointService.getData();
+            PathMatcher matcher = new AntPathMatcher();
+            for(AuthEndpoint ep : endpoints) {
+                if(matcher.match(ep.getEndpoint(), requestedUrl) && ep.getHttpMethod().equalsIgnoreCase(requestedUrlHttpMethod)) {
+                    return false;
+                }
+            }
+            return true;
+        }
+        
+//        if (StringUtils.isNoneBlank(requestedUrl, requestedUrlHttpMethod) && authHeader.startsWith(AuthConstants.AUTH_TOKEN_PREFIX)) {}
+        if (StringUtils.isNoneBlank(requestedUrl, requestedUrlHttpMethod) && authHeader.startsWith(AuthConstants.AUTH_TOKEN_PREFIX)) {
             authToken = authHeader.replace(AuthConstants.AUTH_TOKEN_PREFIX, "");
             try {
                 username = (String) jwtTokenUtil.extractClaim(authToken, "sub");
@@ -95,7 +108,7 @@ public class AuthenticationServiceImpl {
                 throw e;
             }
         } else {
-            log.warn("Couldn't find bearer string, will ignore the header");
+            log.warn("Couldn't find bearer/requestedUlr/httpmethod.");
         }
         
         if(StringUtils.isBlank(username)) return false;
@@ -104,7 +117,7 @@ public class AuthenticationServiceImpl {
         if(userDetails == null) return false;
         if(Boolean.FALSE.equals(jwtTokenUtil.verifyToken(authToken, userDetails))) return false;
         
-        // validate url and corresponding permission
+        // validate url with corresponding permission
         List<String> permissions =  (ArrayList<String>) jwtTokenUtil.extractClaim(authToken, "permissions");
         List<AuthEndpoint> endpoints = endpointService.getData();
         PathMatcher matcher = new AntPathMatcher();

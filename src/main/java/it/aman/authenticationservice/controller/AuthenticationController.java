@@ -14,13 +14,13 @@ import org.springframework.web.bind.annotation.RestController;
 
 import io.jsonwebtoken.JwtException;
 import io.swagger.annotations.ApiParam;
+import it.aman.authentication_service.client.api.AccountApi;
+import it.aman.authentication_service.client.model.ModelLogin;
+import it.aman.authentication_service.client.model.ResponseBase;
 import it.aman.authenticationservice.annotation.Loggable;
 import it.aman.authenticationservice.config.exception.AuthException;
 import it.aman.authenticationservice.config.exception.AuthExceptionEnums;
 import it.aman.authenticationservice.service.AuthenticationServiceImpl;
-import it.aman.authenticationservice.swagger.api.AccountApi;
-import it.aman.authenticationservice.swagger.model.ModelLogin;
-import it.aman.authenticationservice.swagger.model.ResponseBase;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -38,7 +38,6 @@ public class AuthenticationController extends AbstractController implements Acco
         Class<ResponseBase> responseClass = ResponseBase.class;
         MultiValueMap<String, String> headers = new HttpHeaders();
         HttpStatus status = HttpStatus.OK;
-
         try {
             String token = authenticationService.authenticate(body.getUsername(), body.getPassword());
             response = fillSuccessResponseWithMessage(responseClass, token);
@@ -58,15 +57,14 @@ public class AuthenticationController extends AbstractController implements Acco
 
         return new ResponseEntity<>(response, headers, status);
     }
-
+    
     @Override
-	@Loggable
+    @Loggable
     public ResponseEntity<ResponseBase> validateToken() {
         ResponseBase response = null;
         Class<ResponseBase> responseClass = ResponseBase.class;
         MultiValueMap<String, String> headers = new HttpHeaders();
         HttpStatus status = HttpStatus.OK;
-
         try {
             boolean success = authenticationService.validateToken(httpServletRequest);
             if(success) {

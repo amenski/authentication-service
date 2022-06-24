@@ -31,13 +31,6 @@ public class AuthConstants {
 
     public static final String ANONYMOUS_USER = "anonymousUser";
 
-    // article
-    public static final int MIN_ABSTRACT_TEXT_SIZE = 100;
-    public static final int MAX_ABSTRACT_TEXT_SIZE = 350;
-    public static final int MIN_TITLE_TEXT_SIZE = 5;
-    public static final int MAX_TITLE_TEXT_SIZE = 30;
-    public static final int MAX_RANDOM_ARTICLE_SIZE = 10;
-
     // converter
     public static final String ATTRIBUTE_SEPARATOR = "#";
 

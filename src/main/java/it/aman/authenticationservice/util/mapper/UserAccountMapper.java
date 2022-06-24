@@ -3,8 +3,8 @@ package it.aman.authenticationservice.util.mapper;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
+import it.aman.authentication_service.client.model.ModelUser;
 import it.aman.authenticationservice.dal.entity.AuthUser;
-import it.aman.authenticationservice.swagger.model.ModelUser;
 
 @Mapper(componentModel = "spring")
 public interface UserAccountMapper {

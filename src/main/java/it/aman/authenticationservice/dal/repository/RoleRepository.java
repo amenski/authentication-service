@@ -12,5 +12,5 @@ import it.aman.authenticationservice.dal.entity.AuthUser;
 @Repository
 public interface RoleRepository extends JpaRepository<AuthRole, Integer>, JpaSpecificationExecutor<AuthUser> {
 
-	Optional<AuthRole> findByName(String roleName);
+    Optional<AuthRole> findByName(String roleName);
 }

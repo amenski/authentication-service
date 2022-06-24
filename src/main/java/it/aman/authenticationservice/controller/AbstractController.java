@@ -7,9 +7,9 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.stereotype.Component;
 
+import it.aman.authentication_service.client.model.ResponseBase;
 import it.aman.authenticationservice.config.exception.AuthException;
 import it.aman.authenticationservice.config.exception.AuthExceptionEnums;
-import it.aman.authenticationservice.swagger.model.ResponseBase;
 import it.aman.authenticationservice.util.AuthConstants;
 
 @Component

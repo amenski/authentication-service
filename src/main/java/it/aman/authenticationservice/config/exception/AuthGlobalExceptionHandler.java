@@ -24,7 +24,7 @@ import org.springframework.web.server.MethodNotAllowedException;
 import org.springframework.web.servlet.NoHandlerFoundException;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
-import it.aman.authenticationservice.swagger.model.ResponseBase;
+import it.aman.authentication_service.client.model.ResponseBase;
 import it.aman.authenticationservice.util.AuthConstants;
 import lombok.extern.slf4j.Slf4j;
 
@@ -55,7 +55,7 @@ public class AuthGlobalExceptionHandler extends ResponseEntityExceptionHandler {
             HttpStatus status, WebRequest request) {
         String methodName = "handleNoHandlerFoundException()";
         log.error(AuthConstants.PARAMETER_2, methodName, ex.getMessage());
-        return buildResponseEntity(HttpStatus.NOT_FOUND, null, null, ex.getMessage(), null);
+        return buildResponseEntity(HttpStatus.NOT_FOUND, null, null, null, null);
     }
 
     @ExceptionHandler(value = AccessDeniedException.class)

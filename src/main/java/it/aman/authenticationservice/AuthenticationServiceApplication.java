@@ -7,7 +7,7 @@ import org.springframework.context.annotation.EnableAspectJAutoProxy;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
-@SpringBootApplication (scanBasePackages = {"it.aman.authenticationservice"})
+@SpringBootApplication(scanBasePackages = { "it.aman.authenticationservice" })
 @EnableJpaRepositories
 @EnableDiscoveryClient
 @EnableAspectJAutoProxy
