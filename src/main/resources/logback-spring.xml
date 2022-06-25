@@ -39,4 +39,7 @@
         </root>
     </springProfile>
 
+     <logger name="org.apache" level="WARN"/>
+     <logger name="reactor.netty" level="WARN"/>
+     <logger name="org.springframework.web" level="WARN"/>
 </configuration>

@@ -47,7 +47,7 @@ public class AuthenticationServiceImpl {
     
     private final ApiEndpointService endpointService;
     
-    @Loggable
+    @Loggable(exclusions = {"password"})
     @Transactional(rollbackFor = Exception.class)
     public String authenticate(String username, String password) throws AuthException {
         try {
