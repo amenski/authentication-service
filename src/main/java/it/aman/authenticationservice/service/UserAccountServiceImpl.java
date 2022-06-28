@@ -88,7 +88,7 @@ public class UserAccountServiceImpl extends AbstractService {
             account.setEpsRoles(Sets.newHashSet(role));
 
             newUser.setAccount(account);
-            userRepo.persist(newUser);
+            userRepo.save(newUser);
             success = true;
         } catch (DataAccessException e) {
             throw ERPExceptionEnums.VALIDATION_EXCEPTION.get();
@@ -126,7 +126,7 @@ public class UserAccountServiceImpl extends AbstractService {
                 user.getAccount().setModifiedBy(modifiedBy);
                 user.getAccount().setModifiedAt(now);
 
-                userRepo.updateAndFlush(user);
+                userRepo.save(user);
                 success = true;
             }
         } catch (Exception e) {

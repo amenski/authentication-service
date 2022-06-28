@@ -63,7 +63,7 @@ public class AuthenticationServiceImpl {
             {
                 AuthUser user = userRepository.findByAccountEmail(username).orElseThrow(ERPExceptionEnums.USER_NOT_FOUND);
                 user.getAccount().setLastAccess(OffsetDateTime.now());
-                userRepository.updateAndFlush(user);
+                userRepository.save(user);
             }
             
             return jwtTokenUtil.generateToken((UserPrincipal) authentication.getPrincipal());

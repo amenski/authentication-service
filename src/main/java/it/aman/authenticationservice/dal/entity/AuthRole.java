@@ -10,7 +10,7 @@ import javax.persistence.Id;
 import javax.persistence.NamedQuery;
 import javax.persistence.Table;
 
-import it.aman.authenticationservice.dal.util.ListToStringAttributeConverter;
+import it.aman.common.dal.ListToStringAttributeConverter;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
