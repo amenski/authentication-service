@@ -16,7 +16,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import io.jsonwebtoken.JwtException;
-import it.aman.common.ERPConstants;
+import it.aman.common.util.ERPConstants;
 import lombok.RequiredArgsConstructor;
 
 /**

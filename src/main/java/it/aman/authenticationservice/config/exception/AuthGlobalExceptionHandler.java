@@ -25,7 +25,7 @@ import org.springframework.web.servlet.NoHandlerFoundException;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 import it.aman.authentication_service.client.model.ResponseBase;
-import it.aman.common.ERPConstants;
+import it.aman.common.util.ERPConstants;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j

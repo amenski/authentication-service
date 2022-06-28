@@ -27,8 +27,8 @@ import io.jsonwebtoken.Jwt;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.SignatureAlgorithm;
-import it.aman.common.ERPConstants;
 import it.aman.common.annotation.Loggable;
+import it.aman.common.util.ERPConstants;
 
 /**
  * 

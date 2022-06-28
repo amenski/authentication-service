@@ -24,10 +24,10 @@ import it.aman.authenticationservice.dal.entity.AuthUser;
 import it.aman.authenticationservice.dal.repository.UserRepository;
 import it.aman.authenticationservice.service.security.JwtTokenUtil;
 import it.aman.authenticationservice.service.security.UserPrincipal;
-import it.aman.common.ERPConstants;
 import it.aman.common.annotation.Loggable;
 import it.aman.common.exception.ERPException;
 import it.aman.common.exception.ERPExceptionEnums;
+import it.aman.common.util.ERPConstants;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -106,7 +106,7 @@ public class AuthenticationServiceImpl {
                 log.warn("Couldn't find bearer/requestedUlr/httpmethod.");
             }
 
-            if (StringUtils.isBlank(username) || !it.aman.common.StringUtils.equals(subject, username)) {
+            if (StringUtils.isBlank(username) || !it.aman.common.util.StringUtils.equals(subject, username)) {
                 log.error("User name not found or is different than token subject. Username: {}, subject: {}", username, subject);
                 throw ERPExceptionEnums.UNAUTHORIZED_EXCEPTION.get();
             }
@@ -126,11 +126,11 @@ public class AuthenticationServiceImpl {
     }
 
     @SuppressWarnings("unchecked")
-    private boolean validatePermission(String username, String authToken, String requestedUrl, String requestedUrlHttpMethod, List<AuthEndpoint> endpoints) {
+    private boolean validatePermission(String username, String authToken, String requestedUrl, String requestedUrlHttpMethod, List<AuthEndpoint> endpoints) throws ERPException {
         UserPrincipal userDetails = (UserPrincipal) userDetailsService.loadUserByUsername(username);
         if(userDetails == null) {
             log.info("Corresponding userDetail data not found.");
-            return false;
+            throw ERPExceptionEnums.ACCOUNT_NOT_FOUND.get();
         }
         
         if(Boolean.FALSE.equals(jwtTokenUtil.verifyToken(authToken, userDetails))) {

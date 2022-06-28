@@ -17,7 +17,7 @@ import it.aman.authenticationservice.dal.entity.AuthAccount;
 import it.aman.authenticationservice.dal.entity.AuthRole;
 import it.aman.authenticationservice.dal.repository.AccountRepository;
 import it.aman.authenticationservice.service.security.UserPrincipal;
-import it.aman.common.ERPConstants;
+import it.aman.common.util.ERPConstants;
 import lombok.RequiredArgsConstructor;
 
 @Service

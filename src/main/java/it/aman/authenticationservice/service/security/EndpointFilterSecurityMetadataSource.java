@@ -15,7 +15,7 @@ import org.springframework.util.AntPathMatcher;
 import org.springframework.util.PathMatcher;
 
 import it.aman.authenticationservice.dal.entity.AuthEndpoint;
-import it.aman.common.ERPConstants;
+import it.aman.common.util.ERPConstants;
 
 @Component
 public class EndpointFilterSecurityMetadataSource implements FilterInvocationSecurityMetadataSource  {

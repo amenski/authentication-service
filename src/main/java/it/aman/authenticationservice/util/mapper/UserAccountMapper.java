@@ -5,6 +5,7 @@ import org.mapstruct.Mapping;
 
 import it.aman.authentication_service.client.model.ModelUser;
 import it.aman.authenticationservice.dal.entity.AuthUser;
+import it.aman.common.util.DateMapper;
 
 @Mapper(componentModel = "spring", uses = DateMapper.class)
 public interface UserAccountMapper {

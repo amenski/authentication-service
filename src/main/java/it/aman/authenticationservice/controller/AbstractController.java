@@ -8,9 +8,9 @@ import javax.servlet.http.HttpServletResponse;
 import org.springframework.stereotype.Component;
 
 import it.aman.authentication_service.client.model.ResponseBase;
-import it.aman.common.ERPConstants;
 import it.aman.common.exception.ERPException;
 import it.aman.common.exception.ERPExceptionEnums;
+import it.aman.common.util.ERPConstants;
 
 @Component
 public class AbstractController {

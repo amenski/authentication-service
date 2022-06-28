@@ -26,10 +26,10 @@ import it.aman.authenticationservice.dal.repository.RoleRepository;
 import it.aman.authenticationservice.dal.repository.UserRepository;
 import it.aman.authenticationservice.util.FileUtils;
 import it.aman.authenticationservice.util.mapper.UserAccountMapper;
-import it.aman.common.ERPConstants;
 import it.aman.common.annotation.Loggable;
 import it.aman.common.exception.ERPException;
 import it.aman.common.exception.ERPExceptionEnums;
+import it.aman.common.util.ERPConstants;
 import lombok.RequiredArgsConstructor;
 
 @Service

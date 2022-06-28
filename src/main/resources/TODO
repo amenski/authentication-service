@@ -1,3 +1,4 @@
-- EP to generate token
-- EP to validate token (triggered from gateway)
+- EP to generate token - done
+- EP to validate token (triggered from gateway) - done
 - Include whitelist and blacklist?
+- update token while validating, check your note on mobile notes
