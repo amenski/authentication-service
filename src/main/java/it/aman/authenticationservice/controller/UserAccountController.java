@@ -13,9 +13,9 @@ import it.aman.authentication_service.client.api.UsersApi;
 import it.aman.authentication_service.client.model.RequestSaveUser;
 import it.aman.authentication_service.client.model.ResponseBase;
 import it.aman.authentication_service.client.model.ResponseUserSingle;
-import it.aman.authenticationservice.annotation.Loggable;
-import it.aman.authenticationservice.config.exception.AuthException;
 import it.aman.authenticationservice.service.UserAccountServiceImpl;
+import it.aman.common.annotation.Loggable;
+import it.aman.common.exception.ERPException;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -33,7 +33,7 @@ public class UserAccountController extends AbstractController implements UsersAp
         try {
             userService.saveUserDetails(userInfo.getSchema());
             response = fillSuccessResponse(response);
-        } catch (AuthException e) {
+        } catch (ERPException e) {
             status = e.getHttpCode();
             response = fillFailResponseEthException(responseClass, e);
         } catch (Exception e) {

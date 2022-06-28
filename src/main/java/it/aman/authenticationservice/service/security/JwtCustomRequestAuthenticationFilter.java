@@ -16,7 +16,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import io.jsonwebtoken.JwtException;
-import it.aman.authenticationservice.util.AuthConstants;
+import it.aman.common.ERPConstants;
 import lombok.RequiredArgsConstructor;
 
 /**
@@ -35,11 +35,11 @@ public class JwtCustomRequestAuthenticationFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, FilterChain filterChain) throws ServletException, IOException {
-        String header = httpServletRequest.getHeader(AuthConstants.AUTH_HEADER_STRING);
+        String header = httpServletRequest.getHeader(ERPConstants.AUTH_HEADER_STRING);
         String username = null;
         String authToken = null;
-        if (header != null && header.startsWith(AuthConstants.AUTH_TOKEN_PREFIX)) {
-            authToken = header.replace(AuthConstants.AUTH_TOKEN_PREFIX, "");
+        if (header != null && header.startsWith(ERPConstants.AUTH_TOKEN_PREFIX)) {
+            authToken = header.replace(ERPConstants.AUTH_TOKEN_PREFIX, "");
             try {
                 username = (String) jwtTokenUtil.extractClaim(authToken, "sub");
             } catch (IllegalArgumentException e) {

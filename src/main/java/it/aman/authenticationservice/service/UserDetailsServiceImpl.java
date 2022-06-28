@@ -17,7 +17,7 @@ import it.aman.authenticationservice.dal.entity.AuthAccount;
 import it.aman.authenticationservice.dal.entity.AuthRole;
 import it.aman.authenticationservice.dal.repository.AccountRepository;
 import it.aman.authenticationservice.service.security.UserPrincipal;
-import it.aman.authenticationservice.util.AuthConstants;
+import it.aman.common.ERPConstants;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -30,7 +30,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     public UserDetails loadUserByUsername(String username) {
         final AuthAccount acc = accRepository.findByEmail(username);
         if (acc == null) {
-            throw new UsernameNotFoundException(AuthConstants.ACCOUNT_NOT_FOUND);
+            throw new UsernameNotFoundException(ERPConstants.ACCOUNT_NOT_FOUND);
         }
 
         Function<AuthRole, List<GrantedAuthority>> rolesAndPermissions = role -> {

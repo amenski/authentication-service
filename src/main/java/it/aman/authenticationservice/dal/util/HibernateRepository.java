@@ -14,10 +14,6 @@ import java.util.List;
  * hibernate avoiding {@code merge} as much as possible. Use {@code merge} if
  * you have to update a big dependency graph only. </br>
  * 
- * - Find methods are not included. Hence, we will have 2 EntityManagers. This
- * allows {@code update} to work without any problem.
- * 
- * 
  * https://thorben-janssen.com/persist-save-merge-saveorupdate-whats-difference-one-use/
  * 
  * @author Aman

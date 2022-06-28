@@ -25,7 +25,7 @@ import org.springframework.web.servlet.NoHandlerFoundException;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 import it.aman.authentication_service.client.model.ResponseBase;
-import it.aman.authenticationservice.util.AuthConstants;
+import it.aman.common.ERPConstants;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -37,7 +37,7 @@ public class AuthGlobalExceptionHandler extends ResponseEntityExceptionHandler {
     protected ResponseEntity<Object> handleMissingServletRequestParameter(MissingServletRequestParameterException ex,
             HttpHeaders headers, HttpStatus status, WebRequest request) {
         String methodName = "handleMissingServletRequestParameter()";
-        log.error(AuthConstants.PARAMETER_2, methodName, ex.getMessage());
+        log.error(ERPConstants.PARAMETER_2, methodName, ex.getMessage());
         String error = "Parameter " + ex.getParameterName() + " is missing";
         return buildResponseEntity(HttpStatus.BAD_REQUEST, headers, null, ex.getMessage(), Arrays.asList(error));
     }
@@ -46,7 +46,7 @@ public class AuthGlobalExceptionHandler extends ResponseEntityExceptionHandler {
     protected ResponseEntity<Object> handleHttpRequestMethodNotSupported(HttpRequestMethodNotSupportedException ex,
             HttpHeaders headers, HttpStatus status, WebRequest request) {
         String methodName = "handleHttpRequestMethodNotSupported()";
-        log.error(AuthConstants.PARAMETER_2, methodName, ex.getMessage());
+        log.error(ERPConstants.PARAMETER_2, methodName, ex.getMessage());
         return buildResponseEntity(HttpStatus.METHOD_NOT_ALLOWED, headers, null, ex.getMessage(), Arrays.asList(""));
     }
 
@@ -54,21 +54,21 @@ public class AuthGlobalExceptionHandler extends ResponseEntityExceptionHandler {
     public ResponseEntity<Object> handleNoHandlerFoundException(NoHandlerFoundException ex, HttpHeaders headers,
             HttpStatus status, WebRequest request) {
         String methodName = "handleNoHandlerFoundException()";
-        log.error(AuthConstants.PARAMETER_2, methodName, ex.getMessage());
+        log.error(ERPConstants.PARAMETER_2, methodName, ex.getMessage());
         return buildResponseEntity(HttpStatus.NOT_FOUND, null, null, null, null);
     }
 
     @ExceptionHandler(value = AccessDeniedException.class)
     public ResponseEntity<Object> handleAccessDeniedException(AccessDeniedException ex) {
         String methodName = "handleAccessDeniedException()";
-        log.error(AuthConstants.PARAMETER_2, methodName, ex.getMessage());
-        return buildResponseEntity(HttpStatus.FORBIDDEN, null, null, ex.getMessage(), Arrays.asList(AuthConstants.INSUFFICENT_PERMISSION));
+        log.error(ERPConstants.PARAMETER_2, methodName, ex.getMessage());
+        return buildResponseEntity(HttpStatus.FORBIDDEN, null, null, ex.getMessage(), Arrays.asList(ERPConstants.INSUFFICENT_PERMISSION));
     }
 
     @ExceptionHandler(value = MaxUploadSizeExceededException.class)
     public ResponseEntity<Object> handleMaxUploadSizeExceededException(MaxUploadSizeExceededException ex) {
         String methodName = "handleMaxUploadSizeExceededException()";
-        log.error(AuthConstants.PARAMETER_2, methodName, ex.getMessage());
+        log.error(ERPConstants.PARAMETER_2, methodName, ex.getMessage());
         return buildResponseEntity(HttpStatus.BAD_REQUEST, null, null, ex.getMessage(), null);
     }
 
@@ -81,7 +81,7 @@ public class AuthGlobalExceptionHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler(value = InsufficientAuthenticationException.class)
     public ResponseEntity<Object> handleInsufficientAuthenticationException(InsufficientAuthenticationException ex) {
         String methodName = "handleInsufficientAuthenticationException()";
-        log.error(AuthConstants.PARAMETER_2, methodName, ex.getMessage());
+        log.error(ERPConstants.PARAMETER_2, methodName, ex.getMessage());
         return buildResponseEntity(HttpStatus.UNAUTHORIZED, null, null, ex.getMessage(), null);
     }
 
@@ -89,7 +89,7 @@ public class AuthGlobalExceptionHandler extends ResponseEntityExceptionHandler {
     @RequestMapping(produces = { MediaType.APPLICATION_JSON_VALUE })
     public ResponseEntity<Object> handleGenericException(Exception ex) {
         String methodName = "handleGenericException()";
-        log.error(AuthConstants.PARAMETER_3, methodName, ex.getMessage(), ex);
+        log.error(ERPConstants.PARAMETER_3, methodName, ex.getMessage(), ex);
         return buildResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR, null, null, ex.getMessage(), null);
     }
 

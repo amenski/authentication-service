@@ -27,8 +27,8 @@ import io.jsonwebtoken.Jwt;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.SignatureAlgorithm;
-import it.aman.authenticationservice.annotation.Loggable;
-import it.aman.authenticationservice.util.AuthConstants;
+import it.aman.common.ERPConstants;
+import it.aman.common.annotation.Loggable;
 
 /**
  * 
@@ -68,14 +68,14 @@ public class JwtTokenUtil {
 			Claims claims = getAllClaims(token, APP_SECRET);
 			final String username = claims.getSubject();
 			if(StringUtils.isBlank(username) || !username.equals(userDetails.getUsername()))
-				throw new AccessDeniedException(AuthConstants.INSUFFICENT_PERMISSION);
+				throw new AccessDeniedException(ERPConstants.INSUFFICENT_PERMISSION);
 			
 			if(Boolean.TRUE.equals(isTokenExpired(token)))
-			    throw new AccessDeniedException(AuthConstants.INSUFFICENT_PERMISSION);
+			    throw new AccessDeniedException(ERPConstants.INSUFFICENT_PERMISSION);
 			
 			return true;
 		} catch (Exception e) {
-			throw new AccessDeniedException(AuthConstants.INSUFFICENT_PERMISSION);
+			throw new AccessDeniedException(ERPConstants.INSUFFICENT_PERMISSION);
 		}
 	}
 	
@@ -91,7 +91,7 @@ public class JwtTokenUtil {
 	
 	// compaction of the JWT to a URL-safe string
     private String doGenerateToken(Map<String, Object> claims, String secretKey) {
-        Date exp = new Date(System.currentTimeMillis() + AuthConstants.AUTH_TOKEN_VALIDITY);
+        Date exp = new Date(System.currentTimeMillis() + ERPConstants.AUTH_TOKEN_VALIDITY);
 
         byte[] apiKeySecretBytes = DatatypeConverter.parseBase64Binary(secretKey);
         Key signingKey = new SecretKeySpec(apiKeySecretBytes, SIGNATURE_ALGORITHM.getJcaName());
@@ -105,7 +105,7 @@ public class JwtTokenUtil {
         
         // log for non prod
         if (StringUtils.equalsAny(enviroment.getProperty("spring.profiles.active"), "dev", "development")) {
-            logger.debug(AuthConstants.PARAMETER_2, "doGenerateToken()", token);
+            logger.debug(ERPConstants.PARAMETER_2, "doGenerateToken()", token);
         }
         return token;
     }

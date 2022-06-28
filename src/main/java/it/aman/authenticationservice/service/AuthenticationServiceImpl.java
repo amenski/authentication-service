@@ -19,15 +19,15 @@ import org.springframework.util.AntPathMatcher;
 import org.springframework.util.PathMatcher;
 
 import io.jsonwebtoken.JwtException;
-import it.aman.authenticationservice.annotation.Loggable;
-import it.aman.authenticationservice.config.exception.AuthException;
-import it.aman.authenticationservice.config.exception.AuthExceptionEnums;
 import it.aman.authenticationservice.dal.entity.AuthEndpoint;
 import it.aman.authenticationservice.dal.entity.AuthUser;
 import it.aman.authenticationservice.dal.repository.UserRepository;
 import it.aman.authenticationservice.service.security.JwtTokenUtil;
 import it.aman.authenticationservice.service.security.UserPrincipal;
-import it.aman.authenticationservice.util.AuthConstants;
+import it.aman.common.ERPConstants;
+import it.aman.common.annotation.Loggable;
+import it.aman.common.exception.ERPException;
+import it.aman.common.exception.ERPExceptionEnums;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -49,10 +49,10 @@ public class AuthenticationServiceImpl {
     
     @Loggable(exclusions = {"password"})
     @Transactional(rollbackFor = Exception.class)
-    public String authenticate(String username, String password) throws AuthException {
+    public String authenticate(String username, String password) throws ERPException {
         try {
             if(StringUtils.isAnyBlank(username, password)) {
-                throw AuthExceptionEnums.AUTHENTICATION_DATA_REQUIRED.get();
+                throw ERPExceptionEnums.AUTHENTICATION_DATA_REQUIRED.get();
             }
             
             UsernamePasswordAuthenticationToken upToken = new UsernamePasswordAuthenticationToken(username, password, new ArrayList<>());
@@ -61,13 +61,13 @@ public class AuthenticationServiceImpl {
             // Note: Updating {@literal lastAccess} could be done in the UserDetailsService, 
             // the problem is it will always update it on every call, since the service is called on every call for validation of tokens.
             {
-                AuthUser user = userRepository.findByAccountEmail(username).orElseThrow(AuthExceptionEnums.USER_NOT_FOUND);
+                AuthUser user = userRepository.findByAccountEmail(username).orElseThrow(ERPExceptionEnums.USER_NOT_FOUND);
                 user.getAccount().setLastAccess(OffsetDateTime.now());
                 userRepository.updateAndFlush(user);
             }
             
             return jwtTokenUtil.generateToken((UserPrincipal) authentication.getPrincipal());
-        } catch (AuthException e) {
+        } catch (ERPException e) {
             throw e;
         } catch (Exception e) {
             throw e;
@@ -75,51 +75,71 @@ public class AuthenticationServiceImpl {
     }
     
     @Loggable
-    @SuppressWarnings("unchecked")
-    public boolean validateToken(HttpServletRequest httpServletRequest) throws Exception {
-        final String authHeader = httpServletRequest.getHeader(AuthConstants.AUTH_HEADER_STRING);
-        final String requestedUrl = httpServletRequest.getHeader(AuthConstants.X_REQUESTED_URL);
-        final String requestedUrlHttpMethod = httpServletRequest.getHeader(AuthConstants.X_REQUESTED_URL_HTTP_METHOD);
-        String username = null; 
-        String authToken = null;
-        
-        // for public api's we don't have to have them in the endpoint table
-        if(StringUtils.isBlank(authHeader)) {
+    public String validateToken(HttpServletRequest httpServletRequest) throws Exception {
+        boolean success = false;
+        String username = null;
+        try {
+            final String authHeader = httpServletRequest.getHeader(ERPConstants.AUTH_HEADER_STRING);
+            final String requestedUrl = httpServletRequest.getHeader(ERPConstants.X_REQUESTED_URL);
+            final String requestedUrlHttpMethod = httpServletRequest.getHeader(ERPConstants.X_REQUESTED_URL_HTTP_METHOD);
+            final String subject = httpServletRequest.getHeader(ERPConstants.X_REQUESTED_URL_SUBJECT);
+            String authToken = null;
+
+            log.info("Validating token: {}", authHeader);
+            
             List<AuthEndpoint> endpoints = endpointService.getData();
-            PathMatcher matcher = new AntPathMatcher();
-            for(AuthEndpoint ep : endpoints) {
-                if(matcher.match(ep.getEndpoint(), requestedUrl) && ep.getHttpMethod().equalsIgnoreCase(requestedUrlHttpMethod)) {
-                    return false;
+            // for public api's we don't have to have them in the endpoint table
+            if (StringUtils.isBlank(authHeader)) {
+                PathMatcher matcher = new AntPathMatcher();
+                for (AuthEndpoint ep : endpoints) {
+                    if (matcher.match(ep.getEndpoint(), requestedUrl) && ep.getHttpMethod().equalsIgnoreCase(requestedUrlHttpMethod)) {
+                        return "";
+                    }
                 }
+                return ERPConstants.ANONYMOUS_USER;
             }
-            return true;
-        }
-        
-//        if (StringUtils.isNoneBlank(requestedUrl, requestedUrlHttpMethod) && authHeader.startsWith(AuthConstants.AUTH_TOKEN_PREFIX)) {}
-        if (StringUtils.isNoneBlank(requestedUrl, requestedUrlHttpMethod) && authHeader.startsWith(AuthConstants.AUTH_TOKEN_PREFIX)) {
-            authToken = authHeader.replace(AuthConstants.AUTH_TOKEN_PREFIX, "");
-            try {
+
+            if (StringUtils.isNoneBlank(requestedUrl, requestedUrlHttpMethod) && authHeader.startsWith(ERPConstants.AUTH_TOKEN_PREFIX)) {
+                authToken = authHeader.replace(ERPConstants.AUTH_TOKEN_PREFIX, "");
                 username = (String) jwtTokenUtil.extractClaim(authToken, "sub");
-            } catch (IllegalArgumentException e) {
-                log.error("An error occured during getting username from token", e);
-                throw e;
-            } catch (JwtException e) {
-                log.error("The token is expired and not valid anymore", e);
-                throw e;
+            } else {
+                log.warn("Couldn't find bearer/requestedUlr/httpmethod.");
             }
-        } else {
-            log.warn("Couldn't find bearer/requestedUlr/httpmethod.");
+
+            if (StringUtils.isBlank(username) || !it.aman.common.StringUtils.equals(subject, username)) {
+                log.error("User name not found or is different than token subject. Username: {}, subject: {}", username, subject);
+                throw ERPExceptionEnums.UNAUTHORIZED_EXCEPTION.get();
+            }
+
+            success = validatePermission(username, authToken, requestedUrl, requestedUrlHttpMethod, endpoints);
+            log.info("Token validation result: {}", success ? "Authorized" : "Unauthorized");
+            return success ? username : "";
+        } catch (IllegalArgumentException e) {
+            log.error("An error occured during getting username from token", e);
+            throw e;
+        } catch (JwtException e) {
+            log.error("The token is expired and not valid anymore", e);
+            throw e;
+        } catch (Exception e) {
+            throw e;
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    private boolean validatePermission(String username, String authToken, String requestedUrl, String requestedUrlHttpMethod, List<AuthEndpoint> endpoints) {
+        UserPrincipal userDetails = (UserPrincipal) userDetailsService.loadUserByUsername(username);
+        if(userDetails == null) {
+            log.info("Corresponding userDetail data not found.");
+            return false;
         }
         
-        if(StringUtils.isBlank(username)) return false;
-        
-        UserPrincipal userDetails = (UserPrincipal) userDetailsService.loadUserByUsername(username);
-        if(userDetails == null) return false;
-        if(Boolean.FALSE.equals(jwtTokenUtil.verifyToken(authToken, userDetails))) return false;
+        if(Boolean.FALSE.equals(jwtTokenUtil.verifyToken(authToken, userDetails))) {
+            log.info("Token verification not successful.");
+            return false;
+        }
         
         // validate url with corresponding permission
         List<String> permissions =  (ArrayList<String>) jwtTokenUtil.extractClaim(authToken, "permissions");
-        List<AuthEndpoint> endpoints = endpointService.getData();
         PathMatcher matcher = new AntPathMatcher();
         for(AuthEndpoint ep : endpoints) {
             if(matcher.match(ep.getEndpoint(), requestedUrl) && ep.getHttpMethod().equalsIgnoreCase(requestedUrlHttpMethod)) {

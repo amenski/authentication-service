@@ -8,9 +8,9 @@ import javax.servlet.http.HttpServletResponse;
 import org.springframework.stereotype.Component;
 
 import it.aman.authentication_service.client.model.ResponseBase;
-import it.aman.authenticationservice.config.exception.AuthException;
-import it.aman.authenticationservice.config.exception.AuthExceptionEnums;
-import it.aman.authenticationservice.util.AuthConstants;
+import it.aman.common.ERPConstants;
+import it.aman.common.exception.ERPException;
+import it.aman.common.exception.ERPExceptionEnums;
 
 @Component
 public class AbstractController {
@@ -23,8 +23,8 @@ public class AbstractController {
         response.success(true);
         response.message(null);
         response.errors(null);
-        response.resultCode(AuthConstants.SUCCESS);
-        response.transactionId(servletResponse.getHeader(AuthConstants.TRANSACTION_ID_KEY));
+        response.resultCode(ERPConstants.SUCCESS);
+        response.transactionId(servletResponse.getHeader(ERPConstants.TRANSACTION_ID_KEY));
 
         return response;
     }
@@ -34,20 +34,20 @@ public class AbstractController {
         resp.success(true);
         resp.errors(null);
         resp.message(message);
-        resp.resultCode(AuthConstants.SUCCESS);
-        resp.transactionId(servletResponse.getHeader(AuthConstants.TRANSACTION_ID_KEY));
+        resp.resultCode(ERPConstants.SUCCESS);
+        resp.transactionId(servletResponse.getHeader(ERPConstants.TRANSACTION_ID_KEY));
 
         return resp;
     }
 
-    protected <T extends ResponseBase> T fillFailResponseEthException(Class<T> response, AuthException e) {
+    protected <T extends ResponseBase> T fillFailResponseEthException(Class<T> response, ERPException e) {
         T res = getNewInstance(response);
         res.success(false);
         res.errors(e.getErrors());
         res.resultCode(e.getHttpCode().value());
         res.internalCode(e.getInternalCode());
         res.message(e.getErrorMessage());
-        res.transactionId(servletResponse.getHeader(AuthConstants.TRANSACTION_ID_KEY));
+        res.transactionId(servletResponse.getHeader(ERPConstants.TRANSACTION_ID_KEY));
 
         return res;
     }
@@ -56,10 +56,10 @@ public class AbstractController {
         T response = getNewInstance(response1);
         response.success(false);
         response.errors(null);
-        response.message(AuthExceptionEnums.UNHANDLED_EXCEPTION.get().getMessage());
-        response.resultCode(AuthExceptionEnums.UNHANDLED_EXCEPTION.get().getHttpCode().value());
-        response.internalCode(AuthExceptionEnums.UNHANDLED_EXCEPTION.get().getInternalCode());
-        response.transactionId(servletResponse.getHeader(AuthConstants.TRANSACTION_ID_KEY));
+        response.message(ERPExceptionEnums.UNHANDLED_EXCEPTION.get().getMessage());
+        response.resultCode(ERPExceptionEnums.UNHANDLED_EXCEPTION.get().getHttpCode().value());
+        response.internalCode(ERPExceptionEnums.UNHANDLED_EXCEPTION.get().getInternalCode());
+        response.transactionId(servletResponse.getHeader(ERPConstants.TRANSACTION_ID_KEY));
 
         return response;
     }

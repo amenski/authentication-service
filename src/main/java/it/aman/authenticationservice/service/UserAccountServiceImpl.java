@@ -19,17 +19,17 @@ import org.springframework.web.multipart.MultipartFile;
 import com.google.common.collect.Sets;
 
 import it.aman.authentication_service.client.model.ModelUser;
-import it.aman.authenticationservice.annotation.Loggable;
-import it.aman.authenticationservice.config.exception.AuthException;
-import it.aman.authenticationservice.config.exception.AuthExceptionEnums;
 import it.aman.authenticationservice.dal.entity.AuthAccount;
 import it.aman.authenticationservice.dal.entity.AuthRole;
 import it.aman.authenticationservice.dal.entity.AuthUser;
 import it.aman.authenticationservice.dal.repository.RoleRepository;
 import it.aman.authenticationservice.dal.repository.UserRepository;
-import it.aman.authenticationservice.util.AuthConstants;
 import it.aman.authenticationservice.util.FileUtils;
 import it.aman.authenticationservice.util.mapper.UserAccountMapper;
+import it.aman.common.ERPConstants;
+import it.aman.common.annotation.Loggable;
+import it.aman.common.exception.ERPException;
+import it.aman.common.exception.ERPExceptionEnums;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -55,21 +55,22 @@ public class UserAccountServiceImpl extends AbstractService {
 
     @Loggable
     @Transactional(rollbackFor = Exception.class)
-    public boolean saveUserDetails(ModelUser userInfo) throws AuthException {
+    public boolean saveUserDetails(ModelUser userInfo) throws ERPException {
         boolean success = false;
 
         try {
             AuthUser newUser = userMapper.map(userInfo);
             if (Objects.isNull(newUser) || Objects.isNull(newUser.getAccount())) {
-                throw AuthExceptionEnums.VALIDATION_EXCEPTION.get();
+                throw ERPExceptionEnums.VALIDATION_EXCEPTION.get();
             }
 
             // validate if username already used, empty or anonymous
             String username = Optional.ofNullable(newUser.getAccount()).map(AuthAccount::getEmail).map(String::trim)
                     .orElseGet(() -> StringUtils.EMPTY);
-            if (StringUtils.EMPTY.equals(username) || AuthConstants.ANONYMOUS_USER.equals(username)
+            if (StringUtils.EMPTY.equals(username) 
+                    || ERPConstants.ANONYMOUS_USER.equals(username)
                     || userRepo.existsByAccountEmail(username)) {
-                throw AuthExceptionEnums.USERNAME_TAKEN_EXCEPTION.get();
+                throw ERPExceptionEnums.USERNAME_TAKEN_EXCEPTION.get();
             }
 
             OffsetDateTime now = OffsetDateTime.now();
@@ -83,14 +84,14 @@ public class UserAccountServiceImpl extends AbstractService {
             account.setPassword(passwordEncoder.encode(userInfo.getAccount().getPassword()));
 
             // NOTE: All registered users are assigned USER role
-            AuthRole role = roleRepository.findByName("USER").orElseThrow(AuthExceptionEnums.ROLE_NOT_FOUND);
+            AuthRole role = roleRepository.findByName("USER").orElseThrow(ERPExceptionEnums.ROLE_NOT_FOUND);
             account.setEpsRoles(Sets.newHashSet(role));
 
             newUser.setAccount(account);
             userRepo.persist(newUser);
             success = true;
         } catch (DataAccessException e) {
-            throw AuthExceptionEnums.VALIDATION_EXCEPTION.get();
+            throw ERPExceptionEnums.VALIDATION_EXCEPTION.get();
         } catch (Exception e) {
             throw e;
         }
@@ -100,11 +101,11 @@ public class UserAccountServiceImpl extends AbstractService {
     // TODO validate ownership before edit
     @Loggable
     @Transactional(rollbackFor = Exception.class)
-    public boolean updateProfileAvatar(Integer userId, MultipartFile file) throws AuthException, IOException {
+    public boolean updateProfileAvatar(Integer userId, MultipartFile file) throws ERPException, IOException {
         boolean success = false;
         try {
             OffsetDateTime now = OffsetDateTime.now();
-            AuthUser user = userRepo.findById(userId).orElseThrow(AuthExceptionEnums.USER_NOT_FOUND);
+            AuthUser user = userRepo.findById(userId).orElseThrow(ERPExceptionEnums.USER_NOT_FOUND);
 
             // filename [filename + username + date]
             String filename = FilenameUtils.getBaseName(file.getOriginalFilename());

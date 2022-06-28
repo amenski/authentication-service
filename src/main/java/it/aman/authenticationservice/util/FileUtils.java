@@ -24,8 +24,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.util.Assert;
 import org.springframework.web.multipart.MultipartFile;
 
-import it.aman.authenticationservice.config.exception.AuthException;
-import it.aman.authenticationservice.config.exception.AuthExceptionEnums;
+import it.aman.common.ERPConstants;
+import it.aman.common.exception.ERPException;
+import it.aman.common.exception.ERPExceptionEnums;
 
 public final class FileUtils {
 
@@ -42,7 +43,7 @@ public final class FileUtils {
      * @return file extension
      * @throws EthException
      */
-    public static String validateFileType(MultipartFile file, String[] permittedFileTypes) throws AuthException {
+    public static String validateFileType(MultipartFile file, String[] permittedFileTypes) throws ERPException {
         String methodName = "validateFileType()";
         logger.info("{} filename: [{}] and filetypes [{}]", methodName, file.getOriginalFilename(), permittedFileTypes);
         Assert.notNull(file, "Uploaded file can not be null");
@@ -52,10 +53,10 @@ public final class FileUtils {
             fileExtension = FilenameUtils.getExtension(file.getOriginalFilename());
             Collections.addAll(fileTypeSet, permittedFileTypes);
             if (!fileTypeSet.contains(fileExtension) || file.isEmpty())
-                throw AuthExceptionEnums.WRONG_FILE_TYPE_EXCEPTION.get();
+                throw ERPExceptionEnums.WRONG_FILE_TYPE_EXCEPTION.get();
 
         } catch (Exception e) {
-            logger.error(AuthConstants.PARAMETER_2, methodName, e.getMessage());
+            logger.error(ERPConstants.PARAMETER_2, methodName, e.getMessage());
             throw e;
         }
         return fileExtension;
@@ -72,8 +73,7 @@ public final class FileUtils {
      * @throws IOException
      * @throws EthException
      */
-    public static Path uploadFileToPath(String fullFileName, String uploadDir, byte[] filecontent)
-            throws IOException, AuthException {
+    public static Path uploadFileToPath(String fullFileName, String uploadDir, byte[] filecontent) throws IOException, ERPException {
         String methodName = "uploadFileToPath()";
         Assert.notNull(fullFileName, "Filename should not be null.");
         Assert.notNull(filecontent, "Filecontent can not be null.");
@@ -84,7 +84,7 @@ public final class FileUtils {
             fileAbsolutePath = Paths.get(StringUtils.join(uploadDir, File.separatorChar, fullFileName));
             fileOut = Files.write(fileAbsolutePath, filecontent);
         } catch (Exception e) {
-            logger.error(AuthConstants.PARAMETER_2, methodName, e.getMessage());
+            logger.error(ERPConstants.PARAMETER_2, methodName, e.getMessage());
             throw e;
         }
         return fileOut;
@@ -114,7 +114,7 @@ public final class FileUtils {
             imageInByte = baos.toByteArray();
             baos.close();
         } catch (Exception e) {
-            logger.error(AuthConstants.PARAMETER_2, methodName, e.getMessage());
+            logger.error(ERPConstants.PARAMETER_2, methodName, e.getMessage());
             throw e;
         }
         return imageInByte;

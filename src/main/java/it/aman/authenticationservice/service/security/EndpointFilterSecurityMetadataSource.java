@@ -15,7 +15,7 @@ import org.springframework.util.AntPathMatcher;
 import org.springframework.util.PathMatcher;
 
 import it.aman.authenticationservice.dal.entity.AuthEndpoint;
-import it.aman.authenticationservice.util.AuthConstants;
+import it.aman.common.ERPConstants;
 
 @Component
 public class EndpointFilterSecurityMetadataSource implements FilterInvocationSecurityMetadataSource  {
@@ -34,7 +34,7 @@ public class EndpointFilterSecurityMetadataSource implements FilterInvocationSec
         
         PathMatcher pathMatcher = new AntPathMatcher();
         for(Map.Entry<String, ConfigAttribute> attr : configAttributeMap.entrySet()) {
-            String[] patternAndMod = attr.getKey().split(AuthConstants.ATTRIBUTE_SEPARATOR);
+            String[] patternAndMod = attr.getKey().split(ERPConstants.ATTRIBUTE_SEPARATOR);
             if (pathMatcher.match(patternAndMod[0], url) && httpMod.equalsIgnoreCase(patternAndMod[1])) {
                 attributes.add(configAttributeMap.get(attr.getKey()));
             }
@@ -57,7 +57,7 @@ public class EndpointFilterSecurityMetadataSource implements FilterInvocationSec
         Map<String, ConfigAttribute> attributeMap = new ConcurrentHashMap<>();
         for(AuthEndpoint ep : endpoints) {
             // there might be EP with same endpoint but different httpMod
-            attributeMap.put(ep.getEndpoint() + AuthConstants.ATTRIBUTE_SEPARATOR + ep.getHttpMethod(), new ConfigAttribute() {
+            attributeMap.put(ep.getEndpoint() + ERPConstants.ATTRIBUTE_SEPARATOR + ep.getHttpMethod(), new ConfigAttribute() {
                 
                 @Override
                 public String getAttribute() {
