@@ -6,7 +6,6 @@ import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.context.annotation.Scope;
 import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -28,6 +27,7 @@ import it.aman.common.annotation.Loggable;
 import it.aman.common.exception.ERPException;
 import it.aman.common.exception.ERPExceptionEnums;
 import it.aman.common.util.ERPConstants;
+import it.aman.common.util.StringUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -46,6 +46,8 @@ public class AuthenticationServiceImpl {
     private final UserRepository userRepository;
     
     private final ApiEndpointService endpointService;
+    
+    final static PathMatcher matcher = new AntPathMatcher();
     
     @Loggable(exclusions = {"password"})
     @Transactional(rollbackFor = Exception.class)
@@ -90,10 +92,9 @@ public class AuthenticationServiceImpl {
             List<AuthEndpoint> endpoints = endpointService.getData();
             // for public api's we don't have to have them in the endpoint table
             if (StringUtils.isBlank(authHeader)) {
-                PathMatcher matcher = new AntPathMatcher();
                 for (AuthEndpoint ep : endpoints) {
-                    if (matcher.match(ep.getEndpoint(), requestedUrl) && ep.getHttpMethod().equalsIgnoreCase(requestedUrlHttpMethod)) {
-                        return "";
+                    if (serviceAndUrlMatches(ep, parseServiceNameAndUrl(requestedUrl), requestedUrlHttpMethod, matcher)) {
+                        return ""; // Unauthorized
                     }
                 }
                 return ERPConstants.ANONYMOUS_USER;
@@ -140,12 +141,32 @@ public class AuthenticationServiceImpl {
         
         // validate url with corresponding permission
         List<String> permissions =  (ArrayList<String>) jwtTokenUtil.extractClaim(authToken, "permissions");
-        PathMatcher matcher = new AntPathMatcher();
         for(AuthEndpoint ep : endpoints) {
-            if(matcher.match(ep.getEndpoint(), requestedUrl) && ep.getHttpMethod().equalsIgnoreCase(requestedUrlHttpMethod)) {
+            if(serviceAndUrlMatches(ep, parseServiceNameAndUrl(requestedUrl), requestedUrlHttpMethod, matcher)) {
                 return permissions.contains(ep.getPermission());
             }
         }
         return false;
     }
+    
+    // extract service-name and url from what is provided in header
+    private String[] parseServiceNameAndUrl(final String requestedUrl) throws ERPException {
+        if(StringUtils.isBlank(requestedUrl)) {
+            throw ERPExceptionEnums.INVALID_FIELD_VALUE_EXCEPTION.get().setErrorMessage("Can't parse url.");
+        }
+        // ommit the first '/'
+        String[] split = requestedUrl.substring(1).split("/");
+        StringBuilder builder = new StringBuilder("");
+        for (int i=1; i < split.length; i++) {
+            builder.append("/").append(split[i]);
+        }
+        return new String[] {split[0], builder.toString()};
+    }
+    
+    private boolean serviceAndUrlMatches(final AuthEndpoint ep, final String[] serviceNameUrl, final String requestedUrlHttpMethod, final PathMatcher matcher) {
+        return ep.getId().getServiceName().equals(serviceNameUrl[0]) 
+                && matcher.match(ep.getId().getEndpoint(), serviceNameUrl[1]) 
+                && ep.getId().getHttpMethod().equalsIgnoreCase(requestedUrlHttpMethod);
+    }
+
 }

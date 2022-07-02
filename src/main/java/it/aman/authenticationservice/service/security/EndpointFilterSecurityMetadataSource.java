@@ -57,7 +57,7 @@ public class EndpointFilterSecurityMetadataSource implements FilterInvocationSec
         Map<String, ConfigAttribute> attributeMap = new ConcurrentHashMap<>();
         for(AuthEndpoint ep : endpoints) {
             // there might be EP with same endpoint but different httpMod
-            attributeMap.put(ep.getEndpoint() + ERPConstants.ATTRIBUTE_SEPARATOR + ep.getHttpMethod(), new ConfigAttribute() {
+            attributeMap.put(ep.getId().getEndpoint() + ERPConstants.ATTRIBUTE_SEPARATOR + ep.getId().getHttpMethod(), new ConfigAttribute() {
                 
                 @Override
                 public String getAttribute() {

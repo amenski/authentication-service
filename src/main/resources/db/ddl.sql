@@ -45,11 +45,11 @@ CREATE TABLE `auth_account_roles` (
 
 DROP TABLE IF EXISTS auth_endpoint;
 CREATE TABLE `auth_endpoint` (
-  `id` int(11) NOT NULL,
-  `endpoint` varchar(200) NOT NULL,
-  `http_method` varchar(200) NOT NULL,
-  `permission` varchar(200) NOT NULL,
-  PRIMARY KEY (`id`)
+  `service_name` varchar(50) NOT NULL,
+  `endpoint`     varchar(50) NOT NULL,
+  `http_method`  varchar(50) NOT NULL,
+  `permission`   varchar(250) NOT NULL,
+  PRIMARY KEY (`service_name`, `endpoint`, `http_method`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 
