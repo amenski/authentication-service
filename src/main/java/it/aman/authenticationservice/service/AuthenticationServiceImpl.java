@@ -47,7 +47,7 @@ public class AuthenticationServiceImpl {
     
     private final ApiEndpointService endpointService;
     
-    final static PathMatcher matcher = new AntPathMatcher();
+    private static final PathMatcher matcher = new AntPathMatcher();
     
     @Loggable(exclusions = {"password"})
     @Transactional(rollbackFor = Exception.class)
