@@ -71,13 +71,13 @@ public class AuthenticationController extends AbstractController implements Acco
             if(!StringUtils.isBlank(username)) {
                 response = fillSuccessResponseWithMessage(responseClass, username);
             } else {
+                status = HttpStatus.UNAUTHORIZED;
                 response = fillFailResponseEthException(responseClass,  ERPExceptionEnums.UNAUTHORIZED_EXCEPTION.get());
             }
         } catch (ERPException e) {
             status = e.getHttpCode();
             response = fillFailResponseEthException(responseClass, e);
-        } 
-        catch(DisabledException e) {
+        } catch(DisabledException e) {
             status = HttpStatus.NOT_FOUND;
             response = fillFailResponseEthException(responseClass, ERPExceptionEnums.ACCOUNT_NOT_FOUND.get());
         } catch(AuthenticationException e) {

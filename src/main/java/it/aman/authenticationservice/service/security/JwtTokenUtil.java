@@ -8,6 +8,8 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 import javax.crypto.spec.SecretKeySpec;
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletResponse;
 import javax.xml.bind.DatatypeConverter;
 
 import org.apache.commons.lang3.StringUtils;
@@ -46,6 +48,9 @@ public class JwtTokenUtil {
     
     @Autowired
     private Environment enviroment;
+    
+    @Autowired
+    private HttpServletResponse httpServletResponse;
     
     @Loggable
 	public String generateToken(UserPrincipal userDetails) {
@@ -107,6 +112,8 @@ public class JwtTokenUtil {
         if (StringUtils.equalsAny(enviroment.getProperty("spring.profiles.active"), "dev", "development")) {
             logger.debug(ERPConstants.PARAMETER_2, "doGenerateToken()", token);
         }
+        // http-only cookie
+        addCookieToResponse(token, ERPConstants.AUTH_TOKEN_VALIDITY / 1000);
         return token;
     }
 	
@@ -145,4 +152,14 @@ public class JwtTokenUtil {
             return null;
         }
     }
+	
+	@Loggable
+	public void addCookieToResponse(final String token, int authTokenValidity) {
+	    Cookie cookie = new Cookie("token", token);
+	    cookie.setHttpOnly(true);
+	    cookie.setMaxAge(authTokenValidity);
+	    cookie.setPath("/");
+	    
+	    httpServletResponse.addCookie(cookie);
+	}
 }

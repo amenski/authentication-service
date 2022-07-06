@@ -84,7 +84,7 @@ public class AuthenticationServiceImpl {
             final String authHeader = httpServletRequest.getHeader(ERPConstants.AUTH_HEADER_STRING);
             final String requestedUrl = httpServletRequest.getHeader(ERPConstants.X_REQUESTED_URL);
             final String requestedUrlHttpMethod = httpServletRequest.getHeader(ERPConstants.X_REQUESTED_URL_HTTP_METHOD);
-            final String subject = httpServletRequest.getHeader(ERPConstants.X_REQUESTED_URL_SUBJECT);
+            final String subject = httpServletRequest.getHeader(ERPConstants.X_REQUEST_URL_SUBJECT);
             String authToken = null;
 
             log.info("Validating token: {}", authHeader);
