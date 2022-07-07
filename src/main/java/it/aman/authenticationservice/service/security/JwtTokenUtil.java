@@ -113,7 +113,7 @@ public class JwtTokenUtil {
             logger.debug(ERPConstants.PARAMETER_2, "doGenerateToken()", token);
         }
         // http-only cookie
-        addCookieToResponse(token, ERPConstants.AUTH_TOKEN_VALIDITY / 1000);
+        addCookieToResponse(token, ERPConstants.AUTH_TOKEN_VALIDITY / 1000); // adapt to FE date format/length
         return token;
     }
 	

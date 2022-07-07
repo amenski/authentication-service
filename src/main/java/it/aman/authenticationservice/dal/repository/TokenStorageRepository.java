@@ -8,7 +8,7 @@ import org.springframework.stereotype.Repository;
 import it.aman.authenticationservice.dal.entity.AuthTokenStorage;
 
 @Repository
-public interface TokenStorageRepository extends JpaRepository<AuthTokenStorage, String>  {
+public interface TokenStorageRepository extends JpaRepository<AuthTokenStorage, Integer>  {
     
     Optional<AuthTokenStorage> findByTokenString(String token);
 }
