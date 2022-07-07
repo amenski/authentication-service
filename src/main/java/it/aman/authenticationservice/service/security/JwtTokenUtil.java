@@ -117,23 +117,25 @@ public class JwtTokenUtil {
         return token;
     }
 	
-	private Claims getAllClaims(String token, String appSecret) {
-	    
-	    Jwt<?,?> jws = Jwts.parser()
-                .setSigningKey(DatatypeConverter.parseBase64Binary(appSecret))
-                .parse(token);
-	    
-	    // Validate algorithm
-	    // https://auth0.com/blog/a-look-at-the-latest-draft-for-jwt-bcp/
-	    if (jws instanceof Jws) {
-	        if (SIGNATURE_ALGORITHM != SignatureAlgorithm.forName(((JwsHeader<?>)jws.getHeader()).getAlgorithm())) {
-	            throw new MalformedJwtException("Algorithm must be " + SIGNATURE_ALGORITHM);
-	        }
-	    } else {
-	        throw new RuntimeException("Unknown jws format.");
-	    }
-	    return (Claims) jws.getBody();
-	}
+    private Claims getAllClaims(String token, String appSecret) {
+        try {
+            Jwt<?, ?> jws = Jwts.parser().setSigningKey(DatatypeConverter.parseBase64Binary(appSecret)).parse(token);
+
+            // Validate algorithm
+            // https://auth0.com/blog/a-look-at-the-latest-draft-for-jwt-bcp/
+            if (jws instanceof Jws) {
+                if (SIGNATURE_ALGORITHM != SignatureAlgorithm.forName(((JwsHeader<?>) jws.getHeader()).getAlgorithm())) {
+                    throw new MalformedJwtException("Algorithm must be " + SIGNATURE_ALGORITHM);
+                }
+            } else {
+                throw new RuntimeException("Unknown jws format.");
+            }
+            return (Claims) jws.getBody();
+        } catch (Exception e) {
+            logger.error("Error retrieving claiims from token.");
+            throw e;
+        }
+    }
 	
 	private Boolean isTokenExpired(String token) {
         Date expirationDate = getAllClaims(token, APP_SECRET).getExpiration();
@@ -147,19 +149,21 @@ public class JwtTokenUtil {
             return getAllClaims(authToken, APP_SECRET).getSubject();
         case "permissions":
             return getAllClaims(authToken, APP_SECRET).get("permissions", Object.class);
+        case "exp":
+            return getAllClaims(authToken, APP_SECRET).get("exp", Date.class);
         default:
             logger.error("Unknown claim name. ");
             return null;
         }
     }
-	
-	@Loggable
-	public void addCookieToResponse(final String token, int authTokenValidity) {
-	    Cookie cookie = new Cookie("token", token);
-	    cookie.setHttpOnly(true);
-	    cookie.setMaxAge(authTokenValidity);
-	    cookie.setPath("/");
-	    
-	    httpServletResponse.addCookie(cookie);
-	}
+
+    @Loggable
+    public void addCookieToResponse(final String token, int authTokenValidity) {
+        Cookie cookie = new Cookie("token", token);
+        cookie.setHttpOnly(true);
+        cookie.setMaxAge(authTokenValidity);
+        cookie.setPath("/");
+
+        httpServletResponse.addCookie(cookie);
+    }
 }

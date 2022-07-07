@@ -52,6 +52,14 @@ CREATE TABLE `auth_endpoint` (
   PRIMARY KEY (`service_name`, `endpoint`, `http_method`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+DROP TABLE IF EXISTS auth_token_storage;
+CREATE TABLE `auth_token_storage` (
+  `id` int(11) NOT null AUTO_INCREMENT, 
+  `owner` varchar(50) NOT NULL,
+  `token_string` varchar(4000) NOT NULL,
+  `expiration`   BIGINT NOT null,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8
 
 ALTER TABLE auth_account ADD CONSTRAINT `unique_email` UNIQUE (`email`);
 ALTER TABLE auth_user ADD CONSTRAINT `FK_auth_user_auth_account` FOREIGN KEY `auth_user`(`account_id`) REFERENCES `auth_account` (`id`);

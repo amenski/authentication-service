@@ -47,6 +47,8 @@ public class AuthenticationServiceImpl {
     
     private final ApiEndpointService endpointService;
     
+    private final TokenStorageService tokenStorageService;
+    
     private static final PathMatcher matcher = new AntPathMatcher();
     
     @Loggable(exclusions = {"password"})
@@ -68,7 +70,9 @@ public class AuthenticationServiceImpl {
                 userRepository.save(user);
             }
             
-            return jwtTokenUtil.generateToken((UserPrincipal) authentication.getPrincipal());
+            String token = jwtTokenUtil.generateToken((UserPrincipal) authentication.getPrincipal());
+            tokenStorageService.save(token);
+            return token;
         } catch (ERPException e) {
             throw e;
         } catch (Exception e) {
@@ -86,25 +90,25 @@ public class AuthenticationServiceImpl {
             final String requestedUrlHttpMethod = httpServletRequest.getHeader(ERPConstants.X_REQUESTED_URL_HTTP_METHOD);
             final String subject = httpServletRequest.getHeader(ERPConstants.X_REQUEST_URL_SUBJECT);
             String authToken = null;
-
+            
             log.info("Validating token: {}", authHeader);
             
             List<AuthEndpoint> endpoints = endpointService.getData();
             // for public api's we don't have to have them in the endpoint table
-            if (StringUtils.isBlank(authHeader)) {
-                for (AuthEndpoint ep : endpoints) {
-                    if (serviceAndUrlMatches(ep, parseServiceNameAndUrl(requestedUrl), requestedUrlHttpMethod, matcher)) {
-                        return ""; // Unauthorized
-                    }
-                }
-                return ERPConstants.ANONYMOUS_USER;
+            if (StringUtils.isBlank(authToken)) {
+                checkIfPublic(requestedUrl, requestedUrlHttpMethod, endpoints);
             }
-
+            
             if (StringUtils.isNoneBlank(requestedUrl, requestedUrlHttpMethod) && authHeader.startsWith(ERPConstants.AUTH_TOKEN_PREFIX)) {
                 authToken = authHeader.replace(ERPConstants.AUTH_TOKEN_PREFIX, "");
                 username = (String) jwtTokenUtil.extractClaim(authToken, "sub");
             } else {
                 log.warn("Couldn't find bearer/requestedUlr/httpmethod.");
+            }
+
+            if(!tokenStorageService.test(authToken)) {
+                log.error("Token not found in token store.");
+                throw ERPExceptionEnums.UNAUTHORIZED_EXCEPTION.get();
             }
 
             if (StringUtils.isBlank(username) || !it.aman.common.util.StringUtils.equals(subject, username)) {
@@ -126,6 +130,15 @@ public class AuthenticationServiceImpl {
         }
     }
 
+    private String checkIfPublic(String requestedUrl, String requestedUrlHttpMethod, List<AuthEndpoint> endpoints) throws ERPException {
+        for (AuthEndpoint ep : endpoints) {
+            if (serviceAndUrlMatches(ep, parseServiceNameAndUrl(requestedUrl), requestedUrlHttpMethod, matcher)) {
+                return ""; // Unauthorized
+            }
+        }
+        return ERPConstants.ANONYMOUS_USER;
+    }
+    
     @SuppressWarnings("unchecked")
     private boolean validatePermission(String username, String authToken, String requestedUrl, String requestedUrlHttpMethod, List<AuthEndpoint> endpoints) throws ERPException {
         UserPrincipal userDetails = (UserPrincipal) userDetailsService.loadUserByUsername(username);
@@ -168,5 +181,4 @@ public class AuthenticationServiceImpl {
                 && matcher.match(ep.getId().getEndpoint(), serviceNameUrl[1]) 
                 && ep.getId().getHttpMethod().equalsIgnoreCase(requestedUrlHttpMethod);
     }
-
 }
