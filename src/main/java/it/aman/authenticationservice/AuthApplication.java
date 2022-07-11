@@ -14,10 +14,10 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 @EnableDiscoveryClient
 @EnableAspectJAutoProxy
 @EnableTransactionManagement
-public class AuthenticationServiceApplication {
+public class AuthApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(AuthenticationServiceApplication.class, args);
+        SpringApplication.run(AuthApplication.class, args);
     }
 
 }

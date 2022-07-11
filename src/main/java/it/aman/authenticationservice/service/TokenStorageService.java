@@ -15,7 +15,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * Ideally this is a good way to check if incoming token is tampered(comparing to the original one)
+ * Ideally this is a good way to check if incoming token is tampered(compared to the original one)
  * 
  * @author Aman
  *
