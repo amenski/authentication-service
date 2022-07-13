@@ -27,6 +27,7 @@ import it.aman.common.annotation.Loggable;
 import it.aman.common.exception.ERPException;
 import it.aman.common.exception.ERPExceptionEnums;
 import it.aman.common.util.ERPConstants;
+import it.aman.common.util.GeneralUtils;
 import it.aman.common.util.StringUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -132,7 +133,7 @@ public class AuthenticationServiceImpl {
 
     private String checkIfPublic(String requestedUrl, String requestedUrlHttpMethod, List<AuthEndpoint> endpoints) throws ERPException {
         for (AuthEndpoint ep : endpoints) {
-            if (serviceAndUrlMatches(ep, parseServiceNameAndUrl(requestedUrl), requestedUrlHttpMethod, matcher)) {
+            if (serviceAndUrlMatches(ep, GeneralUtils.parseServiceNameAndUrl(requestedUrl), requestedUrlHttpMethod, matcher)) {
                 return ""; // Unauthorized
             }
         }
@@ -155,25 +156,11 @@ public class AuthenticationServiceImpl {
         // validate url with corresponding permission
         List<String> permissions =  (ArrayList<String>) jwtTokenUtil.extractClaim(authToken, "permissions");
         for(AuthEndpoint ep : endpoints) {
-            if(serviceAndUrlMatches(ep, parseServiceNameAndUrl(requestedUrl), requestedUrlHttpMethod, matcher)) {
+            if(serviceAndUrlMatches(ep, GeneralUtils.parseServiceNameAndUrl(requestedUrl), requestedUrlHttpMethod, matcher)) {
                 return permissions.contains(ep.getPermission());
             }
         }
         return false;
-    }
-    
-    // extract service-name and url from what is provided in header
-    private String[] parseServiceNameAndUrl(final String requestedUrl) throws ERPException {
-        if(StringUtils.isBlank(requestedUrl)) {
-            throw ERPExceptionEnums.INVALID_FIELD_VALUE_EXCEPTION.get().setErrorMessage("Can't parse url.");
-        }
-        // ommit the first '/'
-        String[] split = requestedUrl.substring(1).split("/");
-        StringBuilder builder = new StringBuilder("");
-        for (int i=1; i < split.length; i++) {
-            builder.append("/").append(split[i]);
-        }
-        return new String[] {split[0], builder.toString()};
     }
     
     private boolean serviceAndUrlMatches(final AuthEndpoint ep, final String[] serviceNameUrl, final String requestedUrlHttpMethod, final PathMatcher matcher) {
