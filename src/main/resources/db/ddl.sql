@@ -56,7 +56,9 @@ DROP TABLE IF EXISTS auth_token_storage;
 CREATE TABLE `auth_token_storage` (
   `id` int(11) NOT null AUTO_INCREMENT, 
   `owner` varchar(50) NOT NULL,
-  `token_string` varchar(4000) NOT NULL,
+  `token` varchar(4000) NOT NULL,
+  `refresh_token` varchar(250) NOT NULL,
+  `renew_count` int(11) NOT NULL,
   `expiration`   BIGINT NOT null,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8

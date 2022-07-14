@@ -1,15 +1,15 @@
 package it.aman.authenticationservice.service.security;
 
 import java.security.Key;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import javax.crypto.spec.SecretKeySpec;
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletResponse;
 import javax.xml.bind.DatatypeConverter;
 
 import org.apache.commons.lang3.StringUtils;
@@ -34,7 +34,7 @@ import it.aman.common.util.ERPConstants;
 
 /**
  * 
- * @author prg
+ * @author Aman
  *
  */
 @Service
@@ -49,19 +49,16 @@ public class JwtTokenUtil {
     @Autowired
     private Environment enviroment;
     
-    @Autowired
-    private HttpServletResponse httpServletResponse;
-    
     @Loggable
-	public String generateToken(UserPrincipal userDetails) {
+	public Map<String, String> generateToken(UserPrincipal userDetails, boolean refreshOnly) {
         try {
-    		if(Objects.isNull(userDetails)) return StringUtils.EMPTY; //On validation empty string should fail
+    		if(Objects.isNull(userDetails)) return Collections.emptyMap(); //On validation empty string should fail
     		
     		Map<String, Object> claims = new HashMap<>();
     		//claims.put() also suffices, computeIfAbset() is a must when there is a obj nesting or collection in the map for a key
-    		claims.computeIfAbsent("sub", val -> userDetails.getUsername());
-    		claims.computeIfAbsent("permissions", val -> userDetails.getAuthorities().stream().map(GrantedAuthority::getAuthority).collect(Collectors.toList()));
-    		return doGenerateToken(claims, APP_SECRET);
+    		claims.computeIfAbsent(ERPConstants.SUBJECT, val -> userDetails.getUsername());
+    		claims.computeIfAbsent(ERPConstants.PERMISSIONS, val -> userDetails.getAuthorities().stream().map(GrantedAuthority::getAuthority).collect(Collectors.toList()));
+    		return doGenerateToken(claims, APP_SECRET, refreshOnly);
         } catch(Exception e) {
             throw e;
         }
@@ -84,18 +81,8 @@ public class JwtTokenUtil {
 		}
 	}
 	
-	// while creating the token -
-	
-	// 1. Define claims of the token, like Issuer, Expiration, Subject, and the
-	// ID
-	
-	// 2. Sign the JWT using the HS512 algorithm and secret key.
-	
-	// 3. According to JWS Compact
-	// Serialization(https://tools.ietf.org/html/draft-ietf-jose-json-web-signature-41#section-3.1)
-	
-	// compaction of the JWT to a URL-safe string
-    private String doGenerateToken(Map<String, Object> claims, String secretKey) {
+    private Map<String, String> doGenerateToken(Map<String, Object> claims, String secretKey, boolean isRefreshOnly) {
+        Map<String, String> data = new HashMap<>();
         Date exp = new Date(System.currentTimeMillis() + ERPConstants.AUTH_TOKEN_VALIDITY);
 
         byte[] apiKeySecretBytes = DatatypeConverter.parseBase64Binary(secretKey);
@@ -106,15 +93,18 @@ public class JwtTokenUtil {
                 .setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(exp)
                 .signWith(SIGNATURE_ALGORITHM, signingKey)
-                .compact();
+                .compact(); // compaction of the JWT to a URL-safe string
         
         // log for non prod
         if (StringUtils.equalsAny(enviroment.getProperty("spring.profiles.active"), "dev", "development")) {
             logger.debug(ERPConstants.PARAMETER_2, "doGenerateToken()", token);
         }
-        // http-only cookie
-        addCookieToResponse(token, ERPConstants.AUTH_TOKEN_VALIDITY / 1000); // adapt to FE date format/length
-        return token;
+        
+        data.put("token", token);
+        if(!isRefreshOnly) {
+            data.put("refreshToken", UUID.randomUUID().toString());
+        }
+        return Collections.unmodifiableMap(data);
     }
 	
     private Claims getAllClaims(String token, String appSecret) {
@@ -145,25 +135,15 @@ public class JwtTokenUtil {
 	@Loggable
     public Object extractClaim(final String authToken, final String claim) {
         switch (claim) {
-        case "sub":
+        case ERPConstants.SUBJECT:
             return getAllClaims(authToken, APP_SECRET).getSubject();
-        case "permissions":
-            return getAllClaims(authToken, APP_SECRET).get("permissions", Object.class);
-        case "exp":
-            return getAllClaims(authToken, APP_SECRET).get("exp", Date.class);
+        case ERPConstants.PERMISSIONS:
+            return getAllClaims(authToken, APP_SECRET).get(ERPConstants.PERMISSIONS, Object.class);
+        case ERPConstants.EXPIRY:
+            return getAllClaims(authToken, APP_SECRET).get(ERPConstants.EXPIRY, Date.class);
         default:
             logger.error("Unknown claim name. ");
             return null;
         }
-    }
-
-    @Loggable
-    public void addCookieToResponse(final String token, int authTokenValidity) {
-        Cookie cookie = new Cookie("token", token);
-        cookie.setHttpOnly(true);
-        cookie.setMaxAge(authTokenValidity);
-        cookie.setPath("/");
-
-        httpServletResponse.addCookie(cookie);
     }
 }

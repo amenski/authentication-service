@@ -28,18 +28,25 @@ public class AuthTokenStorage implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
     
-    @Column(name = "token_string")
-    private String tokenString;
+    private String token;
     
-    private Long expiration;
+    @Column(name = "refresh_token")
+    private String refreshToken;
+    
+    private Long expiration; // refresh token expiration
     
     private String owner;
     
+    @Column(name = "renew_count")
+    private Integer renewCount;
+    
     // @Builder
-    public AuthTokenStorage(Integer id, String token, Long exp, String owner) {
+    public AuthTokenStorage(Integer id, String token, String refreshToken, Long exp, String owner, Integer count) {
         this.id = id;
-        this.tokenString = token;
+        this.token = token;
+        this.refreshToken = refreshToken;
         this.expiration = exp;
         this.owner = owner;
+        this.renewCount = count;
     }
 }

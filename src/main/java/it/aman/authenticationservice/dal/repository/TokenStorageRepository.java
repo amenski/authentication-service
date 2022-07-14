@@ -10,5 +10,5 @@ import it.aman.authenticationservice.dal.entity.AuthTokenStorage;
 @Repository
 public interface TokenStorageRepository extends JpaRepository<AuthTokenStorage, Integer>  {
     
-    Optional<AuthTokenStorage> findByTokenString(String token);
+    Optional<AuthTokenStorage> findByRefreshToken(String refreshToken);
 }

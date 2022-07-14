@@ -2,6 +2,7 @@ package it.aman.authenticationservice.service;
 
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import org.springframework.context.annotation.Scope;
 import org.springframework.context.annotation.ScopedProxyMode;
@@ -21,12 +22,12 @@ public class TokenManagerScheduler {
 
     private final TokenStorageRepository tokenStorageRepository;
     
-    @Scheduled(fixedDelay = 6000)
+    @Scheduled(fixedDelay = 5, timeUnit = TimeUnit.MINUTES)
     public void run() {
         List<AuthTokenStorage> all = tokenStorageRepository.findAll();
         for(AuthTokenStorage str : all) {
             if(new Date().getTime() > str.getExpiration()) {
-                log.info("Removing token: {}", str.getTokenString());
+                log.info("Removing refresh token: {}", str.getRefreshToken());
                 tokenStorageRepository.deleteById(str.getId());
             }
         }

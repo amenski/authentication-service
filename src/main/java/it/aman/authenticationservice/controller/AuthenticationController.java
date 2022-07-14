@@ -93,4 +93,34 @@ public class AuthenticationController extends AbstractController implements Acco
 
         return new ResponseEntity<>(response, headers, status);
     }
+    
+    @Override
+    @Loggable
+    public ResponseEntity<ResponseBase> refreshToken() {
+        ResponseBase response = null;
+        Class<ResponseBase> responseClass = ResponseBase.class;
+        MultiValueMap<String, String> headers = new HttpHeaders();
+        HttpStatus status = HttpStatus.OK;
+        try {
+            authenticationService.refresh(httpServletRequest);
+            response = fillSuccessResponse(new ResponseBase());
+        } catch (ERPException e) {
+            status = e.getHttpCode();
+            response = fillFailResponseEthException(responseClass, e);
+        } catch(DisabledException e) {
+            status = HttpStatus.NOT_FOUND;
+            response = fillFailResponseEthException(responseClass, ERPExceptionEnums.ACCOUNT_NOT_FOUND.get());
+        } catch(AuthenticationException e) {
+            status = HttpStatus.UNAUTHORIZED;
+            response = fillFailResponseEthException(responseClass, ERPExceptionEnums.USERNAME_OR_PASSWORD_INCORECT.get());
+        }  catch(JwtException e) {
+            status = HttpStatus.UNAUTHORIZED;
+            response = fillFailResponseEthException(responseClass, ERPExceptionEnums.UNAUTHORIZED_EXCEPTION.get());
+        } catch (Exception e) {
+            status = HttpStatus.INTERNAL_SERVER_ERROR;
+            response = fillFailResponseGeneric(responseClass);
+        }
+
+        return new ResponseEntity<>(response, headers, status);
+    }
 }
