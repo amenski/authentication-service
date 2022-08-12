@@ -75,7 +75,7 @@ public class AuthenticationServiceImpl {
             {
                 AuthUser user = userRepository.findByAccountEmail(username).orElseThrow(ERPExceptionEnums.USER_NOT_FOUND);
                 user.getAccount().setLastAccess(OffsetDateTime.now());
-                userRepository.save(user);
+                userRepository.update(user);
             }
             
             Map<String, String> tokenMap = jwtTokenUtil.generateToken((UserPrincipal) authentication.getPrincipal(), false);

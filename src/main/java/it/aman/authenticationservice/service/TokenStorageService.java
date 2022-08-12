@@ -71,11 +71,11 @@ public class TokenStorageService {
                 .owner(subject)
                 .renewCount(0)
                 .build();
-        return storageRepository.save(entity);
+        return storageRepository.persist(entity);
     }
     
     @Loggable
     public void update(AuthTokenStorage entity) {
-        storageRepository.save(entity);
+        storageRepository.update(entity);
     }
 }

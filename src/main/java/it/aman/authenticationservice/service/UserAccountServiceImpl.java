@@ -65,8 +65,7 @@ public class UserAccountServiceImpl extends AbstractService {
             }
 
             // validate if username already used, empty or anonymous
-            String username = Optional.ofNullable(newUser.getAccount()).map(AuthAccount::getEmail).map(String::trim)
-                    .orElseGet(() -> StringUtils.EMPTY);
+            String username = Optional.ofNullable(newUser.getAccount()).map(AuthAccount::getEmail).map(String::trim).orElseGet(() -> StringUtils.EMPTY);
             if (StringUtils.EMPTY.equals(username) 
                     || ERPConstants.ANONYMOUS_USER.equals(username)
                     || userRepo.existsByAccountEmail(username)) {
@@ -88,7 +87,7 @@ public class UserAccountServiceImpl extends AbstractService {
             account.setEpsRoles(Sets.newHashSet(role));
 
             newUser.setAccount(account);
-            userRepo.save(newUser);
+            userRepo.persist(newUser);
             success = true;
         } catch (DataAccessException e) {
             throw ERPExceptionEnums.VALIDATION_EXCEPTION.get();
@@ -126,7 +125,7 @@ public class UserAccountServiceImpl extends AbstractService {
                 user.getAccount().setModifiedBy(modifiedBy);
                 user.getAccount().setModifiedAt(now);
 
-                userRepo.save(user);
+                userRepo.update(user);
                 success = true;
             }
         } catch (Exception e) {

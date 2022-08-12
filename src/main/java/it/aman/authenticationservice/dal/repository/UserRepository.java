@@ -7,10 +7,11 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.stereotype.Repository;
 
 import it.aman.authenticationservice.dal.entity.AuthUser;
+import it.aman.common.dal.HibernateRepository;
 
 @Repository
 public interface UserRepository
-        extends JpaRepository<AuthUser, Integer>, JpaSpecificationExecutor<AuthUser> {
+        extends JpaRepository<AuthUser, Integer>, JpaSpecificationExecutor<AuthUser>, HibernateRepository<AuthUser> {
 
     Optional<AuthUser> findByAccountId(Integer id);
 
